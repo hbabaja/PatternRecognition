@@ -1,13 +1,19 @@
 package hr.fesb.hbabaja;
 
+import java.io.IOException;
 import java.util.Map;
+
+import org.opencv.core.Core;
 
 public class Main {
 	
-		public static void main(String[] args) {
+	
+	
+		public static void main(String[] args) throws IOException {
 			
 			Parser parser;
 			Preprocessor preprocessor;
+			System.loadLibrary(Core.NATIVE_LIBRARY_NAME );
 				
 			if (args.length >= 2) {
 				System.out.println("You entered " + args.length + " arguments\n");
