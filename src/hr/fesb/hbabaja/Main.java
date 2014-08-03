@@ -12,7 +12,7 @@ public class Main {
 		public static void main(String[] args) throws IOException {
 			
 			Parser parser;
-			Preprocessor preprocessor;
+			CsvGenerator csvGenerator;
 			System.loadLibrary(Core.NATIVE_LIBRARY_NAME );
 				
 			if (args.length >= 2) {
@@ -34,8 +34,7 @@ public class Main {
 			}
 			
 			if (Settings.flags.containsKey("-train")) {
-				preprocessor = new Preprocessor(Settings.paths.get("-train"));
-				preprocessor.generateCSV();
+				csvGenerator = new CsvGenerator(Settings.paths.get("-train"));
 				
 			}
 			

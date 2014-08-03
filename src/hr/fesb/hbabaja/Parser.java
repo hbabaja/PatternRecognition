@@ -7,7 +7,6 @@ import java.util.ArrayList;
 public class Parser {
 	
 	private String[] arguments;
-	//private String regExPath = "([a-zA-Z]:)?(\\\\[a-zA-Z0-9._-]+)+\\\\?";
 	
 	public Parser (String[] args) {
 		arguments = args;
