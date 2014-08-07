@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
 
 public class Main {
 	
@@ -12,7 +14,8 @@ public class Main {
 		public static void main(String[] args) throws IOException {
 			
 			Parser parser;
-			CsvGenerator csvGenerator;
+			NetworkTrain training;
+			NetworkTest testing;
 			System.loadLibrary(Core.NATIVE_LIBRARY_NAME );
 				
 			if (args.length >= 2) {
@@ -33,22 +36,16 @@ public class Main {
 				System.exit(1);
 			}
 			
-			if (Settings.flags.containsKey("-train")) {
-				csvGenerator = new CsvGenerator(Settings.paths.get("-train"));
-				
+			if (Settings.flags.get("-train")) {
+				training = new NetworkTrain(Settings.paths.get("-train"));		
+				training.makeRPropNeuralNetwork();
 			}
-			
-			if (Settings.flags.containsKey("-test") && Settings.flags.containsKey("-net")) {
-				Settings.networkFile = Settings.paths.get("-net");
-				
-				if (Settings.flags.containsKey("-out")) {
-					Settings.testOutputFile = Settings.paths.get("-out");
-					System.out.println("Test results saved in " + Settings.testOutputFile);
-//					networkTest = new NetworkTest(Settings.paths.get("-test"), Settings.testOutputFile);
-				} else {
-					System.out.println("Test results saved to default path");
-//					networkTest = new NetworkTest(Settings.paths.get("-test"), Settings.testOutputFile);
-				}
+
+			if (Settings.flags.get("-test")) {			
+				testing = new NetworkTest(Settings.paths.get("-test")); 
+				testing.predictOutput();
+				testing.printResults();
+
 			}
 			
 			if (Settings.flags.containsKey("-pic") && Settings.flags.containsKey("-net")) {

@@ -9,11 +9,9 @@ public class Settings {
 	
 	public static Map<String, Boolean> flags = new HashMap<String, Boolean>();
 	public static Map<String, String> paths = new HashMap<String, String>();
-		
-	public static String outputCSV = "";
 	
-	public static String testOutputFile = "nesto_defaultno";
-	
-	public static String networkFile = "";
+	public static String networkFile = "stored_network.xml";
+	public static int ATTRIBUTES = 27;
+	public static int CLASSES = 11;
 	
 }
