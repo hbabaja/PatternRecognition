@@ -6,6 +6,7 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.TermCriteria;
 import org.opencv.highgui.Highgui;
+import org.opencv.imgproc.Imgproc;
 import org.opencv.ml.CvANN_MLP;
 import org.opencv.ml.CvANN_MLP_TrainParams;
 
@@ -32,97 +33,76 @@ public class NetworkTrain {
 				String tempPath = gtPath + file.getName().replaceAll(".jpg|.JPG|.jpeg|.JPEG", ".bmp");
 				File gtFile = new File(tempPath);
 				if (gtFile.exists()) {
-					generateTrainSample(file.getAbsolutePath(),gtFile.getAbsolutePath());
-					System.out.println(file.getName() + " added.");
+					generateRandomTrainSample(file.getAbsolutePath(),gtFile.getAbsolutePath());
+					//System.out.println(file.getName() + " added.");
 				}
 			}
 		}
 		
 	}
 	
-	private void generateTrainSample(String picPath, String gtPath) {
+	private void generateRandomTrainSample(String picPath, String gtPath) {
 		Mat pic = Highgui.imread(picPath);
 		Mat gtPic = Highgui.imread(gtPath);
+		Mat hsvPic = new Mat();
+		pic.convertTo(hsvPic, Imgproc.COLOR_BGR2HSV);
 		
 		int rows = pic.rows();
 		int cols = pic.cols();
+		int sample = 1;
 		
-		for (int x=1; x<rows-1; x++) {
-			for(int y=1; y<cols-1; y++) {
-				int classN = classNumber((int)gtPic.get(x, y)[0]);
-				if (classN != -1) {
-					addTrainSample(pic, x, y, classN);
-				}
+		while (sample <= 1000) {
+			int x = (int)(Math.random()*(rows-2)) + 1;
+			int y = (int)(Math.random()*(cols-2)) + 1;
+			
+			int classN = classNumber((int)gtPic.get(x, y)[0]);
+			if (classN != -1) {
+				addTrainSample(pic, hsvPic, x, y, classN);
+				sample++;
 			}
 		}
 	}
 	
 
-	private void addTrainSample(Mat pic, int x, int y, int classN) {
+	private void addTrainSample(Mat pic, Mat hsvPic, int x, int y, int classN) {
 		Mat inputElement = Mat.zeros(1, Settings.ATTRIBUTES, CvType.CV_32F);
 		Mat outputElement = Mat.zeros(1, Settings.CLASSES, CvType.CV_32F);
 		
 		outputElement.put(0,classN,1);
 		networkOutput.push_back(outputElement);
-		
-		inputElement.put(0,0, pic.get(x-1,y-1));
-		inputElement.put(0,3, pic.get(x-1,y));
-		inputElement.put(0,6, pic.get(x,y-1));
-		inputElement.put(0,9, pic.get(x,y));
-		inputElement.put(0,12, pic.get(x+1,y+1));
-		inputElement.put(0,15, pic.get(x,y+1));
-		inputElement.put(0,18, pic.get(x+1,y));
-		inputElement.put(0,21, pic.get(x-1,y+1));
-		inputElement.put(0,24, pic.get(x+1,y-1));
+				
+		inputElement.put(0, 0, pic.get(x,y));
+		inputElement.put(0, 3, hsvPic.get(x,y));
+		inputElement.put(0, 6, pic.get(x+1,y));
+		inputElement.put(0, 9, pic.get(x,y+1));
+		inputElement.put(0, 12, pic.get(x-1,y));
+		inputElement.put(0, 15, pic.get(x,y-1));
+		inputElement.put(0, 18, hsvPic.get(x-1,y-1));
+		inputElement.put(0, 21, hsvPic.get(x+1,y-1));
+		inputElement.put(0, 24, hsvPic.get(x+1,y+1));
+		inputElement.put(0, 27, hsvPic.get(x-1,y+1));
+//		inputElement.put(0,0, pic.get(x-1,y-1));
+//		inputElement.put(0,3, pic.get(x-1,y));
+//		inputElement.put(0,6, pic.get(x,y-1));
+//		inputElement.put(0,9, pic.get(x,y));
+//		inputElement.put(0,12, pic.get(x+1,y+1));
+//		inputElement.put(0,15, pic.get(x,y+1));
+//		inputElement.put(0,18, pic.get(x+1,y));
+//		inputElement.put(0,21, pic.get(x-1,y+1));
+//		inputElement.put(0,24, pic.get(x+1,y-1));
 		networkInput.push_back(inputElement);
 	}
 	
-	public void makeBPropNeuralNetwork() {
-		Mat layers = new Mat(3, 1, CvType.CV_32S);
-		layers.put(0, 0, Settings.ATTRIBUTES);
-		layers.put(1, 0, 12);
-		layers.put(2, 0, Settings.CLASSES);
-		
-		CvANN_MLP network = new CvANN_MLP(layers, CvANN_MLP.SIGMOID_SYM, 1, 1);
-		
-		TermCriteria criteria = new TermCriteria(TermCriteria.COUNT + TermCriteria.EPS, 20000, 0.0000001);
-		CvANN_MLP_TrainParams params = new CvANN_MLP_TrainParams();
-		params.set_term_crit(criteria);
-		params.set_train_method(CvANN_MLP_TrainParams.BACKPROP);
-		params.set_bp_dw_scale(0.1);
-		params.set_bp_moment_scale(0.1);
-		
-		System.out.println(networkInput.rows());
-		System.out.println(networkOutput.rows());
-		
-		System.out.println("Starting network train");
-		int iters = network.train(networkInput, networkOutput, new Mat(), new Mat(), params, CvANN_MLP.NO_OUTPUT_SCALE);
-		System.out.println("Training iterations = " + iters);
-		
-		Mat tSample = networkInput.row(100);
-		Mat classificationResult = Mat.zeros(1, Settings.CLASSES, CvType.CV_32F);
-		
-		System.out.println("Predicting on:");
-		System.out.println(tSample.dump());
-		
-		network.predict(tSample, classificationResult);
-		
-		System.out.println("\nResult is:");
-		System.out.println(classificationResult.dump());
-
-		network.save(Settings.networkFile);
-	}
 	
 	public void makeRPropNeuralNetwork() {
 		Mat layers = new Mat(3, 1, CvType.CV_32S);
 		layers.put(0, 0, Settings.ATTRIBUTES);
-		layers.put(1, 0, 12);
+		layers.put(1, 0, 60);
 		layers.put(2, 0, Settings.CLASSES);
 		
 		CvANN_MLP network = new CvANN_MLP(layers, CvANN_MLP.SIGMOID_SYM, 1, 1);
 		
-		
-		TermCriteria criteria = new TermCriteria(TermCriteria.COUNT + TermCriteria.EPS, 1000, 0.00001);
+		TermCriteria criteria = new TermCriteria(TermCriteria.COUNT + TermCriteria.EPS, 2500, 0.0000001);
 		CvANN_MLP_TrainParams params = new CvANN_MLP_TrainParams();
 		params.set_term_crit(criteria);
 		params.set_train_method(CvANN_MLP_TrainParams.RPROP);
@@ -173,6 +153,60 @@ public class NetworkTrain {
 		return classN;
 	}
 	
+	private void generateTrainSample(String picPath, String gtPath) {
+		Mat pic = Highgui.imread(picPath);
+		Mat gtPic = Highgui.imread(gtPath);
+		Mat hsvPic = new Mat();
+		pic.convertTo(hsvPic, Imgproc.COLOR_BGR2HSV);
+		
+		int rows = pic.rows();
+		int cols = pic.cols();
+		
+		for (int x=1; x<rows-1; x++) {
+			for(int y=1; y<cols-1; y++) {
+				int classN = classNumber((int)gtPic.get(x, y)[0]);
+				if (classN != -1) {
+					addTrainSample(pic, hsvPic, x, y, classN);
+				}
+			}
+		}
+	}
+
+	public void makeBPropNeuralNetwork() {
+		Mat layers = new Mat(3, 1, CvType.CV_32S);
+		layers.put(0, 0, Settings.ATTRIBUTES);
+		layers.put(1, 0, 54);
+		layers.put(2, 0, Settings.CLASSES);
+		
+		CvANN_MLP network = new CvANN_MLP(layers, CvANN_MLP.SIGMOID_SYM, 0.6, 1);
+		
+		TermCriteria criteria = new TermCriteria(TermCriteria.COUNT + TermCriteria.EPS, 1000, 0.0000001);
+		CvANN_MLP_TrainParams params = new CvANN_MLP_TrainParams();
+		params.set_term_crit(criteria);
+		params.set_train_method(CvANN_MLP_TrainParams.BACKPROP);
+		params.set_bp_dw_scale(0.05);
+		params.set_bp_moment_scale(0.05);
+		
+		System.out.println(networkInput.rows());
+		System.out.println(networkOutput.rows());
+		
+		System.out.println("Starting network train");
+		int iters = network.train(networkInput, networkOutput, new Mat(), new Mat(), params, CvANN_MLP.NO_OUTPUT_SCALE);
+		System.out.println("Training iterations = " + iters);
+		
+		Mat tSample = networkInput.row(100);
+		Mat classificationResult = Mat.zeros(1, Settings.CLASSES, CvType.CV_32F);
+		
+		System.out.println("Predicting on:");
+		System.out.println(tSample.dump());
+		
+		network.predict(tSample, classificationResult);
+		
+		System.out.println("\nResult is:");
+		System.out.println(classificationResult.dump());
+
+		network.save(Settings.networkFile);
+	}
 //
 //	private void generateCSV() {
 //		File folder = new File(path);
