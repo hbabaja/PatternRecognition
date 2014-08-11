@@ -102,7 +102,7 @@ public class NetworkTrain {
 		
 		CvANN_MLP network = new CvANN_MLP(layers, CvANN_MLP.SIGMOID_SYM, 1, 1);
 		
-		TermCriteria criteria = new TermCriteria(TermCriteria.COUNT + TermCriteria.EPS, 2500, 0.0000001);
+		TermCriteria criteria = new TermCriteria(TermCriteria.COUNT + TermCriteria.EPS, 10000, 0.000000001);
 		CvANN_MLP_TrainParams params = new CvANN_MLP_TrainParams();
 		params.set_term_crit(criteria);
 		params.set_train_method(CvANN_MLP_TrainParams.RPROP);
