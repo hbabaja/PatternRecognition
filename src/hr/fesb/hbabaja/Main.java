@@ -42,6 +42,8 @@ public class Main {
 			}
 
 			if (Settings.flags.get("-test")) {	
+				//Preprocessor preproc = new Preprocessor(Settings.paths.get("-test"));
+				
 				testing = new NetworkTest(Settings.paths.get("-test"), Settings.testingSampleSize); 
 				testing.predictOutput();
 				testing.printResults();
