@@ -1,3 +1,16 @@
+// classes
+// [0] -- smoke
+// [1] -- clouds or fog
+// [2] -- sun or light effects
+// [3] -- sky
+// [4] -- sea
+// [5] -- distant landscape
+// [6] -- rocks
+// [7] -- distant vegetation
+// [8] -- close vegetation
+// [9] -- low vegetation and agricultural areas
+// [10] -- buildings and artificial objects
+
 package hr.fesb.hbabaja;
 
 import org.opencv.core.CvType;
@@ -9,8 +22,8 @@ public class NetworkTest extends NetworkTrain{
 	private int[][] results = new int[11][2];
 	private CvANN_MLP network = new CvANN_MLP();
 
-	public NetworkTest(String folderPath) {
-		super(folderPath);
+	public NetworkTest(String folderPath, int sampleSize) {
+		super(folderPath, sampleSize);
 	}
 	
 	public void predictOutput() {	

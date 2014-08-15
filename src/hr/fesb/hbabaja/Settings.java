@@ -11,7 +11,9 @@ public class Settings {
 	public static Map<String, String> paths = new HashMap<String, String>();
 	
 	public static String networkFile = "stored_network.xml";
-	public static int ATTRIBUTES = 30;
+	public static int ATTRIBUTES = 57;
 	public static int CLASSES = 11;
 	
+	public static int trainingSampleSize = 4000;
+	public static int testingSampleSize = 1000;
 }

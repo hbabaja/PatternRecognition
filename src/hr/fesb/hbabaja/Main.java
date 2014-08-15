@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.opencv.core.Core;
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
 
 public class Main {
 	
@@ -37,19 +35,20 @@ public class Main {
 			}
 			
 			if (Settings.flags.get("-train")) {
-				training = new NetworkTrain(Settings.paths.get("-train"));		
+				//Preprocessor preproc = new Preprocessor(Settings.paths.get("-train"));
+				
+				training = new NetworkTrain(Settings.paths.get("-train"), Settings.trainingSampleSize);		
 				training.makeRPropNeuralNetwork();
 			}
 
-			if (Settings.flags.get("-test")) {			
-				testing = new NetworkTest(Settings.paths.get("-test")); 
+			if (Settings.flags.get("-test")) {	
+				testing = new NetworkTest(Settings.paths.get("-test"), Settings.testingSampleSize); 
 				testing.predictOutput();
 				testing.printResults();
-
 			}
 			
-			if (Settings.flags.containsKey("-pic") && Settings.flags.containsKey("-net")) {
+//			if (Settings.flags.containsKey("-pic") && Settings.flags.containsKey("-net")) {
 //				pokreni metodu za prolaz jedne slike kroz mrezu, dobije se slika kao output
-			}
+//			}
 	}
 }
