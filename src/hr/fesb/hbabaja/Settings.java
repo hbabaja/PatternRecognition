@@ -1,3 +1,4 @@
+
 package hr.fesb.hbabaja;
 
 import java.util.HashMap;
@@ -14,6 +15,6 @@ public class Settings {
 	public static int ATTRIBUTES = 97;
 	public static int CLASSES = 11;
 	
-	public static int trainingSampleSize = 1000;
-	public static int testingSampleSize = 300;
+	public static int trainingSampleSize = 5000;
+	public static int testingSampleSize = 1500;
 }

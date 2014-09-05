@@ -12,8 +12,8 @@ public class Main {
 		public static void main(String[] args) throws IOException {
 			
 			Parser parser;
-			NetworkTrain training;
-			NetworkTest testing;
+			TrainMode training;
+			TestMode testing;
 			System.loadLibrary(Core.NATIVE_LIBRARY_NAME );
 				
 			if (args.length >= 2) {
@@ -34,17 +34,19 @@ public class Main {
 				System.exit(1);
 			}
 			
+			NormalMode normalMode = new NormalMode(Settings.paths.get("-pic"));
+			
 			if (Settings.flags.get("-train")) {
-				//Preprocessor preproc = new Preprocessor(Settings.paths.get("-train"));
+				//Preprocessor preproc = new Preprocessor(Settings.paths.get("-train"),2);
 				
-				training = new NetworkTrain(Settings.paths.get("-train"), Settings.trainingSampleSize);		
+				training = new TrainMode(Settings.paths.get("-train"), Settings.trainingSampleSize);		
 				training.makeRPropNeuralNetwork();
 			}
 
 			if (Settings.flags.get("-test")) {	
-				//Preprocessor preproc = new Preprocessor(Settings.paths.get("-test"));
+				//Preprocessor preproc = new Preprocessor(Settings.paths.get("-test"),2);
 				
-				testing = new NetworkTest(Settings.paths.get("-test"), Settings.testingSampleSize); 
+				testing = new TestMode(Settings.paths.get("-test"), Settings.testingSampleSize); 
 				testing.predictOutput();
 				testing.printResults();
 			}
