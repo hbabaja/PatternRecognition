@@ -14,6 +14,7 @@ public class Main {
 			Parser parser;
 			TrainMode training;
 			TestMode testing;
+			NormalMode normal;
 			System.loadLibrary(Core.NATIVE_LIBRARY_NAME );
 				
 			if (args.length >= 2) {
@@ -33,9 +34,7 @@ public class Main {
 				System.out.println("Not enough program arguments.");
 				System.exit(1);
 			}
-			
-			NormalMode normalMode = new NormalMode(Settings.paths.get("-pic"));
-			
+					
 			if (Settings.flags.get("-train")) {
 				//Preprocessor preproc = new Preprocessor(Settings.paths.get("-train"),2);
 				
@@ -49,6 +48,10 @@ public class Main {
 				testing = new TestMode(Settings.paths.get("-test"), Settings.testingSampleSize); 
 				testing.predictOutput();
 				testing.printResults();
+			}
+			
+			if (Settings.flags.get("-pic")) {
+				normal = new NormalMode(Settings.paths.get("-pic"));		
 			}
 			
 //			if (Settings.flags.containsKey("-pic") && Settings.flags.containsKey("-net")) {
